@@ -6,10 +6,10 @@ function solveEquation(a, b, c) {
 
 	let d = Math.pow(b, 2) - 4 * a * c;
 
-	if(d == 0) {
+	if(d === 0) {
 		arr.push(-b / 2 * a);
 	}
-	if(d > 0 && a != 0) {
+	if(d > 0 && a !== 0) {
 		arr.push((-b + Math.sqrt(d)) / (2 * a));
 		arr.push((-b - Math.sqrt(d)) / (2 * a));
 	}
@@ -25,14 +25,17 @@ function calculateTotalMortgage(percent, contribution, amount, date) {
 	let currentMonth = currentDate.getMonth();
 	let currentYear = currentDate.getFullYear();
 
-	if (isNaN(percent)) {
+	if (isNaN(percent) || percent === '') {
 		return (`Параметр "Процентная ставка" содержит неправильное значение "${percent}"`);
 	}
-	if (isNaN(contribution)) {
+	if (isNaN(contribution) || contribution === '') {
 		return (`Параметр "Начальный взнос" содержит неправильное значение "${contribution}"`);
 	}
-	if (isNaN(amount)) {
+	if (isNaN(amount) || amount === '') {
 		return (`Параметр "Общая стоимость" содержит неправильное значение "${amount}"`);
+	}
+	if (isNaN(lastMonth + lastYear)) {
+		return (`Не указана дата`);
 	}
 
 	let S = amount - contribution;
