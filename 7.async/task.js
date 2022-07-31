@@ -7,7 +7,7 @@ class AlarmClock {
 		this.time = time;
 		this.id = id;
 		this.callback = callback;
-		if(this.id === undefined) {
+		if(!id) {
 			throw new Error("error text");
 		}
 		if(this.alarmCollection.find(item => item.id === this.id)) {
@@ -25,18 +25,16 @@ class AlarmClock {
 		return (`${hours}:${minutes}`);
 	}
 	start() {
-		let currentTime = this.getCurrentFormattedTime();
-		function checkClock(bell, timerId) {
-			let t = 0;
-			if(bell.time === currentTime && t !== bell.time){
+		let getCurrentTime = this.getCurrentFormattedTime;
+		function checkClock(bell) {
+			if(getCurrentTime() === bell.time) {
 				bell.callback();
-				clearInterval(timerId);
 			}
 		}
-		if(this.timerId === null) {
-			this.timerId = setInterval(() => {
-			this.alarmCollection.find(item => checkClock(item, this.timerId));
-			}, 500)
+			if(this.timerId === null) {
+				this.timerId = setInterval(() => {
+				this.alarmCollection.find(item => checkClock(item));
+				}, 1000)
 		}
 	}
 	stop() {
@@ -45,13 +43,72 @@ class AlarmClock {
 			this.timerId = null;
 		}
 	}
+	printAlarms() {
+		console.log(`⏰ Всего установлено ${this.alarmCollection.length}${this.alarmCollection.length ? ':' : '.'}`);
+		this.alarmCollection.forEach(
+		(item) => console.log(`Будильник №${item.id} заведён на ${item.time}`)
+		)
+	}
 	clearAlarms() {
-		clearInterval(this.timerId);
 		this.alarmCollection = [];
 	}
 }
 
-	let clock = new AlarmClock();
-	clock.addClock("23:14", () => console.log("Играет зыка"), 2)
-clock.addClock("23:12", () => console.log("Поздно"), 1)
-	clock.start();
+function testCase() {
+
+	const alarm = new AlarmClock();
+	const currentTime = alarm.getCurrentFormattedTime();
+
+	const addTime = (start, interval) => {
+		const timer = new Date();
+		const startTime = start.split(':');
+		timer.setHours(startTime[0]);
+		timer.setMinutes(Number(startTime[1]) + interval);
+		return timer.toTimeString().slice(0, 5);
+	}
+
+	alarm.addClock(
+		currentTime,
+		() => {
+		console.log('Пора вставать');
+		},
+		1
+	);
+	alarm.addClock(
+		addTime(currentTime, 1),
+		() => {
+			console.log('Давай уже, вставай!');
+			alarm.removeClock(2);
+		},
+		2
+	);
+	alarm.addClock(
+		addTime(currentTime, 2),
+		() => {
+			console.log('Вставай, а то проспишь');
+			alarm.clearAlarms();
+			alarm.printAlarms();
+		},
+		3
+		);
+	alarm.addClock(
+		addTime(currentTime, 1),
+		() => {
+			console.log('Вставай, а то проспишь');
+		},
+		1
+		); 
+	 try {
+	alarm.addClock(
+		addTime(currentTime, 1),
+		() => {
+			console.log('Иди умываться!');
+		});
+	} catch (e) {
+		console.error(e);
+	}
+	alarm.printAlarms();
+	alarm.start();
+}
+
+testCase();
